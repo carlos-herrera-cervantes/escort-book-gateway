@@ -10,11 +10,16 @@ apiEndpoints:
   authorizer:
     host: localhost
     paths: ['/authentication/*']
+  profile:
+    host: localhost
+    paths: ['/customer/profile/*']
 serviceEndpoints:
   httpbin:
     url: 'https://httpbin.org'
   authorizerService:
     url: 'http://localhost:3000/api/v1'
+  profileService:
+    url: 'http://localhost:5002/api/v1'
 policies:
   - log
   - proxy
@@ -36,4 +41,21 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: authorizerService 
+              changeOrigin: true
+  profilePipeline:
+    apiEndpoints:
+      - profile
+    policies:
+      - jwt:
+          - action:
+              secretOrPublicKey: ''
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              body:
+                add:
+                  user: req.user
+      - proxy:
+          - action:
+              serviceEndpoint: profileService
               changeOrigin: true
