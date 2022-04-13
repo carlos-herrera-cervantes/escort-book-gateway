@@ -1,25 +1,45 @@
 http:
-  port: 8080
+  port: ${HTTP_PORT}
 admin:
-  port: 9876
-  host: localhost
+  port: ${ADMIN_PORT}
+  host: ${ADMIN_HOST}
 apiEndpoints:
   api:
-    host: localhost
+    host: ${API_HOST}
     paths: '/ip'
   authorizer:
-    host: localhost
+    host: ${AUTHORIZER_HOST}
     paths: ['/authentication/*']
-  profile:
-    host: localhost
-    paths: ['/customer/profile/*']
+  customerProfile:
+    host: ${CUSTOMER_PROFILE_HOST}
+    paths: ['/customer/*']
+  escortProfile:
+    host: ${ESCORT_PROFILE_HOST}
+    paths: ['/escort/*']
+  payment:
+    host: ${PAYMENT_HOST}
+    paths: ['/payments/*']
+  claim:
+    host: ${CLAIM_HOST}
+    paths: ['/claims', '/claims/*']
+  tracking:
+    host: ${TRACKING_HOST}
+    paths: ['/tracking/*']
 serviceEndpoints:
   httpbin:
     url: 'https://httpbin.org'
   authorizerService:
-    url: 'http://localhost:3000/api/v1'
-  profileService:
-    url: 'http://localhost:5002/api/v1'
+    url: ${AUTHORIZER_URL}
+  customerProfileService:
+    url: ${CUSTOMER_PROFILE_URL}
+  escortProfileService:
+    url: ${ESCORT_PROFILE_URL}
+  paymentService:
+    url: ${PAYMENT_URL}
+  claimService:
+    url: ${CLAIM_URL}
+  trackingService:
+    url: ${TRACKING_URL}
 policies:
   - log
   - proxy
@@ -42,20 +62,128 @@ pipelines:
           - action:
               serviceEndpoint: authorizerService 
               changeOrigin: true
-  profilePipeline:
+  customerProfilePipeline:
     apiEndpoints:
-      - profile
+      - customerProfile
     policies:
       - jwt:
           - action:
-              secretOrPublicKey: ''
+              secretOrPublicKey: ${SECRET_KEY}
               checkCredentialExistence: false
       - request-transformer:
           - action:
-              body:
+              headers:
                 add:
-                  user: req.user
+                  user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-type: req.user.type
+          - action:
+              headers:
+                add:
+                  firebase-token: req.user.firebaseToken
       - proxy:
           - action:
-              serviceEndpoint: profileService
+              serviceEndpoint: customerProfileService
               changeOrigin: true
+  escortProfilePipeline:
+    apiEndpoints:
+      - escortProfile
+    policies:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-type: req.user.type
+          - action:
+              headers:
+                add:
+                  firebase-token: req.user.firebaseToken
+      - proxy:
+          - action:
+              serviceEndpoint: escortProfileService
+              changeOrigin: true
+  paymentPipeline:
+    apiEndpoints:
+      - payment
+    policies:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-type: req.user.type
+          - action:
+              headers:
+                add:
+                  firebase-token: req.user.firebaseToken
+      - proxy:
+          - action:
+              serviceEndpoint: paymentService
+              changeOrigin: true
+  claimPipeline:
+      apiEndpoints:
+        - claim
+      policies:
+        - jwt:
+            - action:
+                secretOrPublicKey: ${SECRET_KEY}
+                checkCredentialExistence: false
+        - request-transformer:
+            - action:
+                headers:
+                  add:
+                    user-id: req.user.id
+            - action:
+                headers:
+                  add:
+                    user-type: req.user.type
+            - action:
+                headers:
+                  add:
+                    firebase-token: req.user.firebaseToken
+        - proxy:
+            - action:
+                serviceEndpoint: claimService
+                changeOrigin: true
+  trackingPipeline:
+      apiEndpoints:
+        - tracking
+      policies:
+        - jwt:
+            - action:
+                secretOrPublicKey: ${SECRET_KEY}
+                checkCredentialExistence: false
+        - request-transformer:
+            - action:
+                headers:
+                  add:
+                    user-id: req.user.id
+            - action:
+                headers:
+                  add:
+                    user-type: req.user.type
+            - action:
+                headers:
+                  add:
+                    firebase-token: req.user.firebaseToken
+        - proxy:
+            - action:
+                serviceEndpoint: trackingService
+                changeOrigin: true
