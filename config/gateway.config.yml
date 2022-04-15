@@ -122,17 +122,9 @@ pipelines:
               checkCredentialExistence: false
       - request-transformer:
           - action:
-              headers:
+              body:
                 add:
-                  user-id: req.user.id
-          - action:
-              headers:
-                add:
-                  user-type: req.user.type
-          - action:
-              headers:
-                add:
-                  firebase-token: req.user.firebaseToken
+                  user: req.user
       - proxy:
           - action:
               serviceEndpoint: paymentService
