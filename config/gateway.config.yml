@@ -15,7 +15,7 @@ apiEndpoints:
     paths: ['/authentication/*']
   customerProfileEscort:
     host: ${CUSTOMER_PROFILE_HOST}
-    paths: ['/customer/profile/avatar/:id', '/customer/profile/photos/:id']
+    paths: ['/customer/:id/profile/avatar', '/customer/:id/profile/photos']
   customerProfile:
     host: ${CUSTOMER_PROFILE_HOST}
     paths: ['/customer/*']
