@@ -28,3 +28,11 @@ authorizationCodes:
 plugins:
   auth:
     package: "../../../plugins/manifest.js"
+  role:
+    package: "../../../plugins/manifest.js"
+  producer-request-log:
+    package: "../../../plugins/manifest.js"
+  producer-connection-log:
+    package: "../../../plugins/manifest.js"
+  parser:
+    package: "../../../plugins/manifest.js"

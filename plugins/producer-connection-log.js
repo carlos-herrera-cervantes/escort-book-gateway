@@ -1,0 +1,28 @@
+'use strict';
+
+const Producer = require('../services/producer');
+
+module.exports = {
+  name: 'producer-connection-log',
+  policy: (actionParams) => async (req, res, next) => {
+    if (req.path != '/authentication/login') return next();
+
+    const message = { lastConnection: new Date().toUTCString() };
+
+    await Producer.producer.connect();
+    await Producer.producer.send({
+      topic: 'user-last-connection',
+      messages: [
+        { value: JSON.stringify(message) },
+      ],
+    }).catch(err => {
+      console.error(
+        `could not send message to kafka for user: ${req.headers['user-id']}`,
+      );
+      console.error(err);
+    });
+    await Producer.producer.disconnect();
+    
+    return next();
+  }
+};
