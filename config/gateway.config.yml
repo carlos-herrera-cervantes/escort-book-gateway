@@ -7,9 +7,16 @@ apiEndpoints:
   api:
     host: ${API_HOST}
     paths: '/ip'
+  user:
+    host: ${USER_HOST}
+    paths:
+      - /users/*
   authorizerWithRole:
     host: ${AUTHORIZER_HOST}
     paths: ['/authentication/users/firebase-token']
+  authorizerUsers:
+    host: ${AUTHORIZER_HOST}
+    paths: ['/authentication/users/sign-up', '/authentication/users/roles']
   authorizer:
     host: ${AUTHORIZER_HOST}
     paths: ['/authentication/*']
@@ -71,12 +78,18 @@ serviceEndpoints:
     url: ${CLAIM_URL}
   trackingService:
     url: ${TRACKING_URL}
+  userService:
+    url: ${USER_URL}
 policies:
   - log
   - proxy
   - jwt
   - request-transformer
   - auth
+  - role
+  - producer-request-log
+  - producer-connection-log
+  - parser
 pipelines:
   default:
     apiEndpoints:
@@ -107,10 +120,57 @@ pipelines:
           - action:
               roles: Escort,Customer
               valueKey: header
+  authorizerUsersPipeline:
+    apiEndpoints:
+      - authorizerUsers
+    policies:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-roles: req.user.roles
+      - role:
+          - action:
+              roles: SuperAdmin,Employee
+      - proxy:
+          - action:
+              serviceEndpoint: authorizerService 
+              changeOrigin: true
+  userPipeline:
+    apiEndpoints:
+      - user
+    policies:
+      - parser:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+      - role:
+          - action:
+              roles: SuperAdmin,Employee
+      - producer-request-log:
+      - proxy:
+          - action:
+              serviceEndpoint: userService 
+              changeOrigin: true
   authorizerPipeline:
     apiEndpoints:
       - authorizer
     policies:
+      - producer-connection-log:
       - proxy:
           - action:
               serviceEndpoint: authorizerService 
