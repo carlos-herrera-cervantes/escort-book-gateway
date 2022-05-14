@@ -7,7 +7,10 @@ module.exports = {
   policy: (actionParams) => async (req, res, next) => {
     if (req.path != '/authentication/login') return next();
 
-    const message = { lastConnection: new Date().toUTCString() };
+    const message = {
+      lastConnection: new Date().toUTCString(),
+      email: req.body.email,
+    };
 
     await Producer.producer.connect();
     await Producer.producer.send({

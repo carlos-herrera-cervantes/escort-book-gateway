@@ -51,6 +51,12 @@ apiEndpoints:
       - /escort/profile-status-categories
       - /escort/service-categories
       - /escort/time-categories
+  paymentOnlyUsers:
+    host: ${PAYMENT_HOST}
+    paths:
+      - /payments/methods
+    methods:
+      - POST
   payment:
     host: ${PAYMENT_HOST}
     paths: ['/payments/*']
@@ -124,6 +130,7 @@ pipelines:
     apiEndpoints:
       - authorizerUsers
     policies:
+      - parser:
       - jwt:
           - action:
               secretOrPublicKey: ${SECRET_KEY}
@@ -133,9 +140,14 @@ pipelines:
               headers:
                 add:
                   user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
       - role:
           - action:
               roles: SuperAdmin,Employee
+      - producer-request-log:
       - proxy:
           - action:
               serviceEndpoint: authorizerService 
@@ -170,6 +182,7 @@ pipelines:
     apiEndpoints:
       - authorizer
     policies:
+      - parser:
       - producer-connection-log:
       - proxy:
           - action:
@@ -286,6 +299,26 @@ pipelines:
           - action:
               serviceEndpoint: escortProfileService
               changeOrigin: true
+  paymentOnlyUsersPipeline:
+    apiEndpoints:
+      - paymentOnlyUsers
+    policies:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+      - role:
+          - action:
+              roles: Employee,SuperAdmin
   paymentPipeline:
     apiEndpoints:
       - payment
