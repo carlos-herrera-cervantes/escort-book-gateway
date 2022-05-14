@@ -5,7 +5,6 @@ const Producer = require('../services/producer');
 module.exports = {
   name: 'producer-request-log',
   policy: (actionParams) => async (req, res, next) => {
-    console.log(req.body);
     const message = {
       userId: req.headers['user-id'],
       component: req.path.split('/')[1],
