@@ -14,12 +14,17 @@ apiEndpoints:
   authorizerWithRole:
     host: ${AUTHORIZER_HOST}
     paths: ['/authentication/users/firebase-token']
-  authorizerUsers:
+  authorizerOperations:
     host: ${AUTHORIZER_HOST}
     paths: ['/authentication/users/sign-up', '/authentication/users/roles']
   authorizer:
     host: ${AUTHORIZER_HOST}
     paths: ['/authentication/*']
+  customerOperations:
+    host: ${CUSTOMER_PROFILE_HOST}
+    paths:
+      - /customers
+      - /customer/:id/profile/status
   customerProfileEscort:
     host: ${CUSTOMER_PROFILE_HOST}
     paths: ['/customer/:id/profile/avatar', '/customer/:id/profile/photos']
@@ -128,7 +133,7 @@ pipelines:
               valueKey: header
   authorizerUsersPipeline:
     apiEndpoints:
-      - authorizerUsers
+      - authorizerOperations
     policies:
       - parser:
       - jwt:
@@ -187,6 +192,32 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: authorizerService 
+              changeOrigin: true
+  customerOperationsPipeline:
+    apiEndpoints:
+      - customerOperations
+    policies:
+      - parser:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+      - role:
+          - action:
+              roles: SuperAdmin,Employee
+      - producer-request-log:
+      - proxy:
+          - action:
+              serviceEndpoint: customerProfileService 
               changeOrigin: true
   customerProfileEscortPipeline:
     apiEndpoints:
