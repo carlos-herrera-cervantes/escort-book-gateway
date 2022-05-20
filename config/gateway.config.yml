@@ -31,6 +31,12 @@ apiEndpoints:
   customerProfile:
     host: ${CUSTOMER_PROFILE_HOST}
     paths: ['/customer/*']
+  escortOperations:
+    host: ${CUSTOMER_PROFILE_HOST}
+    paths:
+      - /escorts
+      - /escort/:id/profile/identifications
+      - /escort/:id/profile/status
   escortProfileCustomer:
     host: ${ESCORT_PROFILE_HOST}
     paths:
@@ -270,6 +276,32 @@ pipelines:
           - action:
               serviceEndpoint: customerProfileService
               changeOrigin: true
+  escortOperationsPipeline:
+    apiEndpoints:
+      - escortOperations
+    policies:
+      - parser:
+      - jwt:
+          - action:
+              secretOrPublicKey: ${SECRET_KEY}
+              checkCredentialExistence: false
+      - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+      - role:
+          - action:
+              roles: SuperAdmin,Employee
+      - producer-request-log:
+      - proxy:
+          - action:
+              serviceEndpoint: escortProfileService 
+              changeOrigin: true
   escortProfileCustomerPipeline:
     apiEndpoints:
       - escortProfileCustomer
@@ -293,7 +325,7 @@ pipelines:
                   firebase-token: req.user.firebaseToken
       - auth:
           - action:
-              roles: Customer
+              roles: Customer,Organization
               valueKey: header
               mandatoryRole: Escort
       - proxy:
