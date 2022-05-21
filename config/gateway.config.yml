@@ -71,12 +71,15 @@ apiEndpoints:
   payment:
     host: ${PAYMENT_HOST}
     paths: ['/payments/*']
-  claimWithRole:
+  claimOperations:
     host: ${CLAIM_HOST}
-    paths: ['/claims/:id/dictum']
+    paths:
+      - /claims
+      - /claims/:id/dictum
   claim:
     host: ${CLAIM_HOST}
-    paths: ['/claims', '/claims/*']
+    paths:
+      - /claims/*
   tracking:
     host: ${TRACKING_HOST}
     paths: ['/tracking/*']
@@ -399,9 +402,9 @@ pipelines:
           - action:
               serviceEndpoint: paymentService
               changeOrigin: true
-  claimWithRolePipeline:
+  claimOperationsPipeline:
       apiEndpoints:
-        - claimWithRole
+        - claimOperations
       policies:
         - jwt:
             - action:
@@ -422,8 +425,12 @@ pipelines:
                     firebase-token: req.user.firebaseToken
         - auth:
             - action:
-                roles: User
+                roles: Organization
                 valueKey: header
+        - proxy:
+            - action:
+                serviceEndpoint: claimService
+                changeOrigin: true
   claimPipeline:
       apiEndpoints:
         - claim
