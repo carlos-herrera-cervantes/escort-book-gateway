@@ -7,13 +7,15 @@ module.exports = {
     const rolePolicy = require('./role');
     const producerRequestLogPolicy = require('./producer-request-log');
     const producerConnectionLogPolicy = require('./producer-connection-log');
-    const parser = require('./parser');
+    const parserPolicy = require('./parser');
+    const jwtValidatorPolicy = require('./jwt-validator');
 
     pluginContext.registerPolicy(typePolicy);
     pluginContext.registerPolicy(rolePolicy);
     pluginContext.registerPolicy(producerRequestLogPolicy);
     pluginContext.registerPolicy(producerConnectionLogPolicy);
-    pluginContext.registerPolicy(parser);
+    pluginContext.registerPolicy(parserPolicy);
+    pluginContext.registerPolicy(jwtValidatorPolicy);
   },
   policies: [
     'auth',
@@ -21,5 +23,6 @@ module.exports = {
     'producer-request-log',
     'producer-connection-log',
     'parser',
+    'jwt-validator',
   ],
 };

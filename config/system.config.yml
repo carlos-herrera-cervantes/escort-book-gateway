@@ -36,3 +36,5 @@ plugins:
     package: "../../../plugins/manifest.js"
   parser:
     package: "../../../plugins/manifest.js"
+  jwt-validator:
+    package: "../../../plugins/manifest.js"
