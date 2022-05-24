@@ -110,6 +110,7 @@ policies:
   - producer-request-log
   - producer-connection-log
   - parser
+  - jwt-validator
 pipelines:
   default:
     apiEndpoints:
@@ -211,6 +212,7 @@ pipelines:
           - action:
               secretOrPublicKey: ${SECRET_KEY}
               checkCredentialExistence: false
+      - jwt-validator:
       - request-transformer:
           - action:
               headers:
@@ -262,6 +264,7 @@ pipelines:
           - action:
               secretOrPublicKey: ${SECRET_KEY}
               checkCredentialExistence: false
+      - jwt-validator:
       - request-transformer:
           - action:
               headers:
@@ -358,7 +361,7 @@ pipelines:
                   firebase-token: req.user.firebaseToken
       - auth:
           - action:
-              roles: Escort
+              roles: Escort,Organization
               valueKey: header
               mandatoryRole: Escort
       - proxy:

@@ -5,8 +5,8 @@ const { Kafka } = require('kafkajs');
 class Producer {
   constructor() {
     const kafka = new Kafka({
-      clientId: 'escort-book-gateway',
-      brokers: ['localhost:9092'],
+      clientId: process.env.KAFKA_CLIENT_ID,
+      brokers: [process.env.KAFKA_BROKERS],
     });
 
     this.producer = kafka.producer();
