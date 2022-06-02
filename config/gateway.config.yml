@@ -137,6 +137,10 @@ pipelines:
               headers:
                 add:
                   user-type: req.user.type
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - auth:
           - action:
               roles: Escort,Customer
@@ -159,6 +163,10 @@ pipelines:
               headers:
                 add:
                   user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - role:
           - action:
               roles: SuperAdmin,Employee
@@ -185,6 +193,10 @@ pipelines:
               headers:
                 add:
                   user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - role:
           - action:
               roles: SuperAdmin,Employee
@@ -222,6 +234,10 @@ pipelines:
               headers:
                 add:
                   user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - role:
           - action:
               roles: SuperAdmin,Employee
@@ -251,6 +267,10 @@ pipelines:
               headers:
                 add:
                   firebase-token: req.user.firebaseToken
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - auth:
           - action:
               roles: Escort
@@ -278,6 +298,10 @@ pipelines:
               headers:
                 add:
                   firebase-token: req.user.firebaseToken
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - proxy:
           - action:
               serviceEndpoint: customerProfileService
@@ -300,6 +324,10 @@ pipelines:
               headers:
                 add:
                   user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - role:
           - action:
               roles: SuperAdmin,Employee
@@ -329,6 +357,10 @@ pipelines:
               headers:
                 add:
                   firebase-token: req.user.firebaseToken
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - auth:
           - action:
               roles: Customer,Organization
@@ -359,6 +391,10 @@ pipelines:
               headers:
                 add:
                   firebase-token: req.user.firebaseToken
+          - action:
+              headers:
+                add:
+                  user-email: req.user-email
       - auth:
           - action:
               roles: Escort,Organization
@@ -385,6 +421,10 @@ pipelines:
               headers:
                 add:
                   user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
       - role:
           - action:
               roles: Employee,SuperAdmin
@@ -426,6 +466,10 @@ pipelines:
                 headers:
                   add:
                     firebase-token: req.user.firebaseToken
+            - action:
+                headers:
+                  add:
+                    user-email: req.user.email
         - auth:
             - action:
                 roles: Organization
@@ -455,6 +499,10 @@ pipelines:
                 headers:
                   add:
                     firebase-token: req.user.firebaseToken
+            - action:
+                headers:
+                  add:
+                    user-email: req.user.email
         - proxy:
             - action:
                 serviceEndpoint: claimService
@@ -480,6 +528,10 @@ pipelines:
                 headers:
                   add:
                     firebase-token: req.user.firebaseToken
+            - action:
+                headers:
+                  add:
+                    user-email: req.user.email
         - proxy:
             - action:
                 serviceEndpoint: trackingService
