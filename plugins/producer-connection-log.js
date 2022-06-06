@@ -12,7 +12,9 @@ module.exports = {
       email: req.body.email,
     };
 
-    await Producer.producer.connect();
+    await Producer.producer.connect().catch(err => {
+      console.error(`could not connect to Kafka cluster: ${err}`);
+    });
     await Producer.producer.send({
       topic: 'user-last-connection',
       messages: [
@@ -24,7 +26,9 @@ module.exports = {
       );
       console.error(err);
     });
-    await Producer.producer.disconnect();
+    await Producer.producer.disconnect().catch(err => {
+      console.error(`could not disconnect from Kafka cluster: ${err}`);
+    });
     
     return next();
   }

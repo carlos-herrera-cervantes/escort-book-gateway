@@ -13,7 +13,9 @@ module.exports = {
       payload: req.body,
     };
 
-    await Producer.producer.connect();
+    await Producer.producer.connect().catch(err => {
+      console.error(`could not connect to Kafka cluster: ${err}`);
+    });
     await Producer.producer.send({
       topic: 'user-request',
       messages: [
@@ -23,9 +25,11 @@ module.exports = {
       console.error(
         `could not send message to kafka for user: ${message.userId}`,
       );
-      console.error(err);
+      console.err(err);
     });
-    await Producer.producer.disconnect();
+    await Producer.producer.disconnect().catch(err => {
+      console.error(`could not disconnect from Kafka cluster: ${err}`);
+    });
     
     return next();
   }
