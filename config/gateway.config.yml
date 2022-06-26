@@ -83,6 +83,10 @@ apiEndpoints:
   tracking:
     host: ${TRACKING_HOST}
     paths: ['/tracking/*']
+  statistics:
+    host: ${STATISTICS_HOST}
+    paths:
+      - /statistics/*
 serviceEndpoints:
   httpbin:
     url: 'https://httpbin.org'
@@ -100,6 +104,8 @@ serviceEndpoints:
     url: ${TRACKING_URL}
   userService:
     url: ${USER_URL}
+  statisticsService:
+    url: ${STATISTICS_URL}
 policies:
   - log
   - proxy
@@ -535,4 +541,32 @@ pipelines:
         - proxy:
             - action:
                 serviceEndpoint: trackingService
+                changeOrigin: true
+  statisticsPipeline:
+      apiEndpoints:
+        - statistics
+      policies:
+        - jwt:
+            - action:
+                secretOrPublicKey: ${SECRET_KEY}
+                checkCredentialExistence: false
+        - request-transformer:
+          - action:
+              headers:
+                add:
+                  user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
+        - role:
+          - action:
+              roles: Employee,SuperAdmin
+        - proxy:
+            - action:
+                serviceEndpoint: statisticsService
                 changeOrigin: true
