@@ -13,7 +13,7 @@ apiEndpoints:
       - /users/*
   authorizerWithRole:
     host: ${AUTHORIZER_HOST}
-    paths: ['/authentication/users/firebase-token']
+    paths: ['/authentication/users/firebase-token', '/authentication/logout']
   authorizerOperations:
     host: ${AUTHORIZER_HOST}
     paths: ['/authentication/users/sign-up', '/authentication/users/roles']
@@ -134,6 +134,7 @@ pipelines:
           - action:
               secretOrPublicKey: ${SECRET_KEY}
               checkCredentialExistence: false
+      - jwt-validator:
       - request-transformer:
           - action:
               headers:
@@ -431,6 +432,10 @@ pipelines:
               headers:
                 add:
                   user-email: req.user.email
+          - action:
+              headers:
+                add:
+                  user-type: req.user.type
       - role:
           - action:
               roles: Employee,SuperAdmin
@@ -444,9 +449,21 @@ pipelines:
               checkCredentialExistence: false
       - request-transformer:
           - action:
-              body:
+              headers:
                 add:
-                  user: req.user
+                  user-roles: req.user.roles
+          - action:
+              headers:
+                add:
+                  user-id: req.user.id
+          - action:
+              headers:
+                add:
+                  user-email: req.user.email
+          - action:
+              headers:
+                add:
+                  user-type: req.user.type
       - proxy:
           - action:
               serviceEndpoint: paymentService
